@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gorib Gamers - এডমিন প্যানেল</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .admin-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .admin-header {
+            background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+            padding: 20px 15px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f59e0b, #10b981, #3b82f6);
+        }
+
+        .admin-logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .admin-logo i {
+            color: #fbbf24;
+        }
+
+        .admin-subtitle {
+            font-size: 14px;
+            color: #fecaca;
+            opacity: 0.9;
+        }
+
+        .admin-nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .admin-nav-btn {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            color: #94a3b8;
+            padding: 15px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .admin-nav-btn i {
+            font-size: 20px;
+        }
+
+        .admin-nav-btn.active {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .admin-nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .admin-page {
+            display: none;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-btn {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .add-btn:hover {
+            background: linear-gradient(90deg, #059669, #047857);
+            transform: translateY(-2px);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border-top: 4px solid;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .admin-list {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            background: rgba(239, 68, 68, 0.2);
+            padding: 15px;
+            font-weight: 600;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            align-items: center;
+            text-align: center;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .edit-btn, .delete-btn, .complete-btn, .toggle-btn, .view-btn, .reject-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .edit-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .complete-btn {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .view-btn {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .reject-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .toggle-btn {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .edit-btn:hover, .delete-btn:hover, .complete-btn:hover, .view-btn:hover, .toggle-btn:hover, .reject-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .admin-form {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 2px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(90deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+        }
+
+        .order-details-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .discount-badge {
+            background: #10b981;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: rgba(239, 68, 68, 0.2);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .loading i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #ef4444;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 500px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .site-preview {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .preview-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #3b82f6;
+        }
+
+        .preview-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .preview-tagline {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .transaction-id {
+            font-family: monospace;
+            color: #3b82f6;
+            font-size: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
+        
+        .package-order-page {
+            margin-bottom: 20px;
+        }
+        
+        .package-order-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .package-order-item {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .package-order-item:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+        }
+        
+        .package-order-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .package-order-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .package-order-price {
+            font-size: 18px;
+            font-weight: 900;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-logo">
+            <i class="fas fa-user-shield"></i>
+            Gorib Gamers - Admin
+        </div>
+        <div class="admin-subtitle">এডমিন কন্ট্রোল প্যানেল</div>
+    </div>
+
+    <div class="admin-container">
+        <div class="admin-nav">
+            <button class="admin-nav-btn active" data-page="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                ড্যাশবোর্ড
+            </button>
+            <button class="admin-nav-btn" data-page="packages">
+                <i class="fas fa-box"></i>
+                প্যাকেজ
+            </button>
+            <button class="admin-nav-btn" data-page="orders">
+                <i class="fas fa-shopping-cart"></i>
+                প্যাকেজ অর্ডার
+            </button>
+            <button class="admin-nav-btn" data-page="promo">
+                <i class="fas fa-tag"></i>
+                প্রোমো
+            </button>
+            <button class="admin-nav-btn" data-page="settings">
+                <i class="fas fa-cog"></i>
+                সেটিংস
+            </button>
+            <button class="admin-nav-btn" data-page="site">
+                <i class="fas fa-globe"></i>
+                সাইট
+            </button>
+            <button class="admin-nav-btn" data-page="social">
+                <i class="fas fa-share-alt"></i>
+                সোশ্যাল
+            </button>
+            <button class="admin-nav-btn" data-page="payment">
+                <i class="fas fa-credit-card"></i>
+                পেমেন্ট
+            </button>
+        </div>
+
+        <div id="dashboard-page" class="admin-page">
+            <h2 class="page-title">
+                <i class="fas fa-tachometer-alt"></i>
+                ড্যাশবোর্ড
+            </h2>
+            
+            <div class="stats-container">
+                <div class="stat-card" style="border-color: #3b82f6;">
+                    <div class="stat-value" id="total-orders">0</div>
+                    <div class="stat-label">মোট অর্ডার</div>
+                </div>
+                <div class="stat-card" style="border-color: #ef4444;">
+                    <div class="stat-value" id="pending-orders">0</div>
+                    <div class="stat-label">পেন্ডিং অর্ডার</div>
+                </div>
+                <div class="stat-card" style="border-color: #10b981;">
+                    <div class="stat-value" id="total-revenue">0 ৳</div>
+                    <div class="stat-label">মোট আয়</div>
+                </div>
+                <div class="stat-card" style="border-color: #f59e0b;">
+                    <div class="stat-value" id="total-packages">0</div>
+                    <div class="stat-label">প্যাকেজ</div>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h3 class="page-title">
+                    <i class="fas fa-clock"></i>
+                    সাম্প্রতিক পেমেন্ট রিকোয়েস্ট
+                </h3>
+            </div>
+
+            <div class="admin-list" id="recent-orders">
+                <div class="list-header">
+                    <div>প্যাকেজ</div>
+                    <div>প্লেয়ার</div>
+                    <div>টাকা</div>
+                    <div>ট্রানজেকশন</div>
+                    <div>অ্যাকশন</div>
+                </div>
+                <div id="recent-orders-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>অর্ডার লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="packages-page" class="admin-page">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-box"></i>
+                    প্যাকেজ ম্যানেজমেন্ট
+                </h2>
+                <button class="add-btn" onclick="showPackageForm()">
+                    <i class="fas fa-plus"></i>
+                    নতুন প্যাকেজ
+                </button>
+            </div>
+
+            <div class="admin-list">
+                <div class="list-header">
+                    <div>নাম</div>
+                    <div>দাম</div>
+                    <div>সময়</div>
+                    <div>ব্যাজ</div>
+                    <div>অ্যাকশন</div>
+                </div>
+                <div id="packages-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>প্যাকেজ লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="orders-page" class="admin-page">
+            <div class="tabs" id="orders-tabs">
+                <button class="tab-btn active" data-tab="all-orders">সব অর্ডার</button>
+                <button class="tab-btn" data-tab="pending">পেন্ডিং</button>
+                <button class="tab-btn" data-tab="completed">সম্পূর্ণ</button>
+                <button class="tab-btn" data-tab="rejected">রিজেক্টেড</button>
+            </div>
+
+            <div id="all-orders-tab">
+                <div class="admin-list">
+                    <div class="list-header">
+                        <div>অর্ডার আইডি</div>
+                        <div>প্যাকেজ</div>
+                        <div>টাকা</div>
+                        <div>ট্রানজেকশন</div>
+                        <div>অ্যাকশন</div>
+                    </div>
+                    <div id="all-orders-list">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>অর্ডার লোড হচ্ছে...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pending-orders-tab" style="display: none;">
+                <div class="admin-list">
+                    <div class="list-header">
+                        <div>অর্ডার আইডি</div>
+                        <div>প্যাকেজ</div>
+                        <div>টাকা</div>
+                        <div>ট্রানজেকশন</div>
+                        <div>অ্যাকশন</div>
+                    </div>
+                    <div id="pending-orders-list">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>অর্ডার লোড হচ্ছে...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="completed-orders-tab" style="display: none;">
+                <div class="admin-list">
+                    <div class="list-header">
+                        <div>অর্ডার আইডি</div>
+                        <div>প্যাকেজ</div>
+                        <div>টাকা</div>
+                        <div>ট্রানজেকশন</div>
+                        <div>সময়</div>
+                    </div>
+                    <div id="completed-orders-list">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>অর্ডার লোড হচ্ছে...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rejected-orders-tab" style="display: none;">
+                <div class="admin-list">
+                    <div class="list-header">
+                        <div>অর্ডার আইডি</div>
+                        <div>প্যাকেজ</div>
+                        <div>টাকা</div>
+                        <div>ট্রানজেকশন</div>
+                        <div>সময়</div>
+                    </div>
+                    <div id="rejected-orders-list">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>অর্ডার লোড হচ্ছে...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="promo-page" class="admin-page">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-tag"></i>
+                    প্রোমো কোড ম্যানেজমেন্ট
+                </h2>
+                <button class="add-btn" onclick="showPromoForm()">
+                    <i class="fas fa-plus"></i>
+                    নতুন কোড
+                </button>
+            </div>
+
+            <div class="admin-form" id="promo-form" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">প্রোমো কোড</label>
+                        <input type="text" id="promo-code-input" class="form-input" placeholder="SUMMER2024" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ডিস্কাউন্ট (%)</label>
+                        <input type="number" id="promo-discount" class="form-input" placeholder="10" min="1" max="100">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">মোট ইউজার লিমিট</label>
+                        <input type="number" id="promo-limit" class="form-input" placeholder="100" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ব্যবহার হয়েছে</label>
+                        <input type="number" id="promo-used" class="form-input" placeholder="0" readonly>
+                    </div>
+                </div>
+                <button class="submit-btn" onclick="savePromoCode()">
+                    <i class="fas fa-save"></i>
+                    প্রোমো কোড সেভ করুন
+                </button>
+            </div>
+
+            <div class="admin-list">
+                <div class="list-header">
+                    <div>কোড</div>
+                    <div>ডিস্কাউন্ট</div>
+                    <div>ব্যবহার</div>
+                    <div>লিমিট</div>
+                    <div>অ্যাকশন</div>
+                </div>
+                <div id="promo-codes-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>প্রোমো কোড লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-page" class="admin-page">
+            <h2 class="page-title">
+                <i class="fas fa-cog"></i>
+                জেনারেল সেটিংস
+            </h2>
+
+            <div class="admin-form">
+                <div class="form-group">
+                    <label class="form-label">সাইট টাইটেল</label>
+                    <input type="text" id="site-title" class="form-input" placeholder="Gorib Gamers">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ডিফল্ট কারেন্সি</label>
+                    <select id="default-currency" class="form-input">
+                        <option value="৳">বাংলাদেশী টাকা (৳)</option>
+                        <option value="$">ইউএস ডলার ($)</option>
+                        <option value="₹">ভারতীয় রুপি (₹)</option>
+                    </select>
+                </div>
+
+                <button class="submit-btn" onclick="saveGeneralSettings()">
+                    <i class="fas fa-save"></i>
+                    সেটিংস সেভ করুন
+                </button>
+            </div>
+        </div>
+
+        <div id="site-page" class="admin-page">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-globe"></i>
+                    সাইট সেটিংস
+                </h2>
+            </div>
+
+            <div class="site-preview">
+                <img id="preview-logo" src="" alt="Logo Preview" class="preview-logo" style="display: none;">
+                <div class="preview-name" id="preview-name">Gorib Gamers</div>
+                <div class="preview-tagline" id="preview-tagline">প্রিমিয়াম মাইনক্রাফট সার্ভার এক্সেস</div>
+            </div>
+
+            <div class="admin-form">
+                <div class="form-group">
+                    <label class="form-label">সাইট নাম</label>
+                    <input type="text" id="site-name" class="form-input" placeholder="Gorib Gamers" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">সাইট ট্যাগলাইন</label>
+                    <input type="text" id="site-tagline" class="form-input" placeholder="প্রিমিয়াম মাইনক্রাফট সার্ভার এক্সেস" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">সাইট লোগো URL</label>
+                    <input type="text" id="site-logo" class="form-input" placeholder="https://example.com/logo.png" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ফেভিকন URL</label>
+                    <input type="text" id="site-favicon" class="form-input" placeholder="https://example.com/favicon.ico">
+                </div>
+
+                <button class="submit-btn" onclick="saveSiteSettings()">
+                    <i class="fas fa-save"></i>
+                    সাইট সেটিংস সেভ করুন
+                </button>
+            </div>
+        </div>
+
+        <div id="social-page" class="admin-page">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-share-alt"></i>
+                    সোশ্যাল লিংক ম্যানেজমেন্ট
+                </h2>
+                <button class="add-btn" onclick="showSocialForm()">
+                    <i class="fas fa-plus"></i>
+                    নতুন লিংক
+                </button>
+            </div>
+
+            <div class="admin-form" id="social-form" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">প্ল্যাটফর্ম</label>
+                        <select id="social-platform" class="form-input">
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="discord">Discord</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="custom">কাস্টম</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">আইকন ক্লাস</label>
+                        <input type="text" id="social-icon" class="form-input" placeholder="fab fa-whatsapp">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">লিংক URL</label>
+                        <input type="text" id="social-url" class="form-input" placeholder="https://wa.me/8801790856992">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">রঙ (Hex)</label>
+                        <input type="color" id="social-color" class="form-input" value="#25D366">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">বর্ণনা</label>
+                    <input type="text" id="social-desc" class="form-input" placeholder="9AM - 12PM">
+                </div>
+                <button class="submit-btn" onclick="saveSocialLink()">
+                    <i class="fas fa-save"></i>
+                    লিংক সেভ করুন
+                </button>
+            </div>
+
+            <div class="admin-list">
+                <div class="list-header">
+                    <div>প্ল্যাটফর্ম</div>
+                    <div>লিংক</div>
+                    <div>বর্ণনা</div>
+                    <div>স্ট্যাটাস</div>
+                    <div>অ্যাকশন</div>
+                </div>
+                <div id="social-links-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>লিংক লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="payment-page" class="admin-page">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-credit-card"></i>
+                    পেমেন্ট মেথড ম্যানেজমেন্ট
+                </h2>
+                <button class="add-btn" onclick="showPaymentMethodForm()">
+                    <i class="fas fa-plus"></i>
+                    নতুন মেথড
+                </button>
+            </div>
+
+            <div class="admin-form" id="payment-method-form" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">মেথড নাম</label>
+                        <input type="text" id="payment-method-name" class="form-input" placeholder="উদাহরণ: Upay, Tap">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">আইকন ক্লাস</label>
+                        <input type="text" id="payment-method-icon" class="form-input" placeholder="fas fa-wallet">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">নম্বর</label>
+                        <input type="text" id="payment-method-number" class="form-input" placeholder="017XXXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">রঙ (Hex)</label>
+                        <input type="color" id="payment-method-color" class="form-input" value="#3b82f6" style="height: 45px;">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">স্ট্যাটাস</label>
+                        <select id="payment-method-status" class="form-input">
+                            <option value="active">সক্রিয়</option>
+                            <option value="inactive">নিষ্ক্রিয়</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID (অটো জেনারেট)</label>
+                        <input type="text" id="payment-method-id" class="form-input" placeholder="upay" readonly>
+                    </div>
+                </div>
+                
+                <button class="submit-btn" onclick="savePaymentMethod()">
+                    <i class="fas fa-save"></i>
+                    পেমেন্ট মেথড সেভ করুন
+                </button>
+            </div>
+
+            <div class="admin-form" style="margin-bottom: 25px;">
+                <h3 style="color: white; margin-bottom: 15px; font-size: 18px;">
+                    <i class="fas fa-mobile-alt"></i> ডিফল্ট পেমেন্ট মেথড
+                </h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">bKash নম্বর</label>
+                        <input type="text" id="bkash-number" class="form-input" placeholder="01790856992">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-top: 25px;">
+                            <input type="checkbox" id="bkash-active" checked>
+                            <span>সক্রিয়</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nagad নম্বর</label>
+                        <input type="text" id="nagad-number" class="form-input" placeholder="01890856992">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-top: 25px;">
+                            <input type="checkbox" id="nagad-active" checked>
+                            <span>সক্রিয়</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Rocket নম্বর</label>
+                        <input type="text" id="rocket-number" class="form-input" placeholder="01990856992">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-top: 25px;">
+                            <input type="checkbox" id="rocket-active" checked>
+                            <span>সক্রিয়</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="submit-btn" onclick="saveDefaultPaymentSettings()">
+                    <i class="fas fa-save"></i>
+                    ডিফল্ট মেথড সেভ করুন
+                </button>
+            </div>
+
+            <div class="admin-list">
+                <div class="list-header">
+                    <div>পেমেন্ট মেথড</div>
+                    <div>নম্বর</div>
+                    <div>স্ট্যাটাস</div>
+                    <div>ট্রানজেকশন</div>
+                    <div>অ্যাকশন</div>
+                </div>
+                <div id="payment-methods-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>পেমেন্ট মেথড লোড হচ্ছে...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="package-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closePackageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2 style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-box"></i>
+                <span id="modal-title">নতুন প্যাকেজ</span>
+            </h2>
+            
+            <div class="admin-form">
+                <div class="form-group">
+                    <label class="form-label">প্যাকেজ নাম</label>
+                    <input type="text" id="package-name" class="form-input" placeholder="Royal (Monthly)" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">দাম (৳)</label>
+                        <input type="number" id="package-price" class="form-input" placeholder="388.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">সময়কাল</label>
+                        <input type="text" id="package-duration" class="form-input" placeholder="1 মাস" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">ব্যাজ টেক্সট</label>
+                        <input type="text" id="package-badge" class="form-input" placeholder="বেস্ট">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ব্যাজ রঙ</label>
+                        <input type="color" id="package-color" class="form-input" value="#f59e0b" style="height: 45px;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ইমেজ URL</label>
+                    <input type="text" id="package-image" class="form-input" placeholder="https://example.com/package-image.jpg">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">অর্ডার নম্বর</label>
+                        <input type="number" id="package-order" class="form-input" placeholder="1" min="1">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">বর্ণনা</label>
+                    <textarea id="package-description" class="form-input" rows="3" placeholder="প্যাকেজের বিস্তারিত বর্ণনা..."></textarea>
+                </div>
+                
+                <button class="submit-btn" onclick="savePackage()">
+                    <i class="fas fa-save"></i>
+                    প্যাকেজ সেভ করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeOrderModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h2 style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-file-invoice"></i>
+                অর্ডার ডিটেইলস
+            </h2>
+            
+            <div class="order-details-card" id="order-details-content">
+                <!-- Order details will be loaded here -->
+            </div>
+            
+            <div style="display: flex; gap: 15px;">
+                <button class="complete-btn" style="flex: 1; padding: 15px; font-size: 16px;" onclick="completeOrder()">
+                    <i class="fas fa-check-circle"></i> কমপ্লিট করুন
+                </button>
+                <button class="reject-btn" style="flex: 1; padding: 15px; font-size: 16px;" onclick="rejectOrder()">
+                    <i class="fas fa-times-circle"></i> রিজেক্ট করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <div id="notification-message">সফলভাবে সেভ করা হয়েছে!</div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyAZ24VpRIvkto3SXprJufl8VC4JjK78HGg",
+  authDomain: "gorib-fff77.firebaseapp.com",
+  projectId: "gorib-fff77",
+  storageBucket: "gorib-fff77.firebasestorage.app",
+  messagingSenderId: "602732504017",
+  appId: "1:602732504017:web:0771883cc364f3be5876f0"
+};
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentPackageId = null;
+        let currentOrderId = null;
+        let siteSettings = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    showAdminPage(page);
+                });
+            });
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    showOrdersTab(tab);
+                });
+            });
+            
+            // Load initial data
+            loadDashboard();
+            loadPackagesAdmin();
+            loadAllOrders();
+            loadPendingOrders();
+            loadCompletedOrders();
+            loadRejectedOrders();
+            loadPromoCodes();
+            loadGeneralSettings();
+            loadSiteSettingsAdmin();
+            loadSocialLinksAdmin();
+            loadPaymentMethodsAdmin();
+            loadDefaultPaymentSettings();
+            
+            showAdminPage('dashboard');
+            
+            setupRealtimeListeners();
+        });
+
+        function setupRealtimeListeners() {
+            // Realtime orders listener
+            db.collection('orders').onSnapshot((snapshot) => {
+                loadDashboard();
+                loadAllOrders();
+                loadPendingOrders();
+                loadCompletedOrders();
+                loadRejectedOrders();
+                loadRecentOrders();
+            }, (error) => {
+                console.error('Error in orders listener:', error);
+            });
+        }
+
+        function showAdminPage(page) {
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-page') === page) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.admin-page').forEach(p => {
+                p.style.display = 'none';
+            });
+            
+            document.getElementById(`${page}-page`).style.display = 'block';
+            
+            if (page === 'site') {
+                updatePreview();
+            }
+        }
+
+        function showOrdersTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Hide all tabs
+            document.getElementById('all-orders-tab').style.display = 'none';
+            document.getElementById('pending-orders-tab').style.display = 'none';
+            document.getElementById('completed-orders-tab').style.display = 'none';
+            document.getElementById('rejected-orders-tab').style.display = 'none';
+            
+            // Show selected tab
+            document.getElementById(`${tab}-orders-tab`).style.display = 'block';
+            
+            // Load data for selected tab
+            if (tab === 'all-orders') {
+                loadAllOrders();
+            } else if (tab === 'pending') {
+                loadPendingOrders();
+            } else if (tab === 'completed') {
+                loadCompletedOrders();
+            } else if (tab === 'rejected') {
+                loadRejectedOrders();
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const ordersSnapshot = await db.collection('orders').get();
+                const totalOrders = ordersSnapshot.size;
+                
+                const pendingSnapshot = await db.collection('orders').where('status', '==', 'pending').get();
+                const pendingOrders = pendingSnapshot.size;
+                
+                let totalRevenue = 0;
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    if (order.status === 'complete') {
+                        totalRevenue += order.amount || 0;
+                    }
+                });
+                
+                const packagesSnapshot = await db.collection('packages').get();
+                const totalPackages = packagesSnapshot.size;
+                
+                document.getElementById('total-orders').textContent = totalOrders;
+                document.getElementById('pending-orders').textContent = pendingOrders;
+                document.getElementById('total-revenue').textContent = totalRevenue.toFixed(2) + ' ৳';
+                document.getElementById('total-packages').textContent = totalPackages;
+                
+                loadRecentOrders();
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showNotification('ড্যাশবোর্ড লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadRecentOrders() {
+            try {
+                const container = document.getElementById('recent-orders-list');
+                const snapshot = await db.collection('orders')
+                    .where('status', '==', 'pending')
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো পেন্ডিং অর্ডার নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = { id: doc.id, ...doc.data() };
+                    const orderItem = createRecentOrderItem(order);
+                    container.appendChild(orderItem);
+                });
+                
+            } catch (error) {
+                console.error('Error loading recent orders:', error);
+            }
+        }
+
+        function createRecentOrderItem(order) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.style.cursor = 'pointer';
+            div.onclick = () => showOrderDetails(order.id);
+            
+            const discountBadge = order.discountPercentage > 0 ? 
+                `<span class="discount-badge">-${order.discountPercentage}%</span>` : '';
+            
+            div.innerHTML = `
+                <div>${order.packageName || 'N/A'}</div>
+                <div>${order.playerId || 'N/A'}</div>
+                <div>${order.amount?.toFixed(2) || '0.00'} ৳ ${discountBadge}</div>
+                <div><span class="transaction-id">${order.transactionId?.substring(0, 8) || 'N/A'}</span></div>
+                <div class="action-buttons">
+                    <button class="complete-btn" onclick="event.stopPropagation(); completeOrderById('${order.id}')">
+                        <i class="fas fa-check"></i> কমপ্লিট
+                    </button>
+                    <button class="reject-btn" onclick="event.stopPropagation(); rejectOrderById('${order.id}')">
+                        <i class="fas fa-times"></i> রিজেক্ট
+                    </button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        async function loadPackagesAdmin() {
+            try {
+                const container = document.getElementById('packages-list');
+                const snapshot = await db.collection('packages').orderBy('order', 'asc').get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-box-open" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো প্যাকেজ নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const pkg = { id: doc.id, ...doc.data() };
+                    container.appendChild(createPackageAdminItem(pkg));
+                });
+                
+            } catch (error) {
+                console.error('Error loading packages:', error);
+                showNotification('প্যাকেজ লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function createPackageAdminItem(pkg) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            div.innerHTML = `
+                <div><strong>${pkg.name}</strong></div>
+                <div>${pkg.price?.toFixed(2) || '0.00'} ৳</div>
+                <div>${pkg.duration || 'N/A'}</div>
+                <div>${pkg.badge || 'নাই'}</div>
+                <div class="action-buttons">
+                    <button class="edit-btn" onclick="editPackage('${pkg.id}')">
+                        <i class="fas fa-edit"></i> এডিট
+                    </button>
+                    <button class="delete-btn" onclick="deletePackage('${pkg.id}')">
+                        <i class="fas fa-trash"></i> ডিলিট
+                    </button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function showPackageForm(packageId = null) {
+            currentPackageId = packageId;
+            
+            const modal = document.getElementById('package-modal');
+            const title = document.getElementById('modal-title');
+            
+            if (packageId) {
+                title.textContent = 'প্যাকেজ এডিট করুন';
+                loadPackageData(packageId);
+            } else {
+                title.textContent = 'নতুন প্যাকেজ যোগ করুন';
+                resetPackageForm();
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        async function loadPackageData(packageId) {
+            try {
+                const doc = await db.collection('packages').doc(packageId).get();
+                if (!doc.exists) {
+                    showNotification('প্যাকেজ পাওয়া যায়নি', 'error');
+                    return;
+                }
+                
+                const pkg = doc.data();
+                
+                document.getElementById('package-name').value = pkg.name || '';
+                document.getElementById('package-price').value = pkg.price || '';
+                document.getElementById('package-duration').value = pkg.duration || '';
+                document.getElementById('package-badge').value = pkg.badge || '';
+                document.getElementById('package-color').value = pkg.color || '#f59e0b';
+                document.getElementById('package-order').value = pkg.order || '';
+                document.getElementById('package-image').value = pkg.image || '';
+                document.getElementById('package-description').value = pkg.description || '';
+                
+            } catch (error) {
+                console.error('Error loading package:', error);
+                showNotification('প্যাকেজ লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function resetPackageForm() {
+            document.getElementById('package-name').value = '';
+            document.getElementById('package-price').value = '';
+            document.getElementById('package-duration').value = '';
+            document.getElementById('package-badge').value = '';
+            document.getElementById('package-color').value = '#f59e0b';
+            document.getElementById('package-order').value = '';
+            document.getElementById('package-image').value = '';
+            document.getElementById('package-description').value = '';
+        }
+
+        async function savePackage() {
+            const name = document.getElementById('package-name').value.trim();
+            const price = parseFloat(document.getElementById('package-price').value);
+            const duration = document.getElementById('package-duration').value.trim();
+            const badge = document.getElementById('package-badge').value.trim();
+            const color = document.getElementById('package-color').value;
+            const order = parseInt(document.getElementById('package-order').value) || 99;
+            const image = document.getElementById('package-image').value.trim();
+            const description = document.getElementById('package-description').value.trim();
+            
+            if (!name || !price || !duration) {
+                showNotification('সব প্রয়োজনীয় ফিল্ড পূরণ করুন', 'error');
+                return;
+            }
+            
+            try {
+                const packageData = {
+                    name: name,
+                    price: price,
+                    duration: duration,
+                    order: order,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (badge) packageData.badge = badge;
+                if (color) packageData.color = color;
+                if (image) packageData.image = image;
+                if (description) packageData.description = description;
+                
+                if (!currentPackageId) {
+                    packageData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                }
+                
+                if (currentPackageId) {
+                    await db.collection('packages').doc(currentPackageId).update(packageData);
+                    showNotification('প্যাকেজ আপডেট করা হয়েছে!');
+                } else {
+                    await db.collection('packages').add(packageData);
+                    showNotification('প্যাকেজ যোগ করা হয়েছে!');
+                }
+                
+                closePackageModal();
+                loadPackagesAdmin();
+                loadDashboard();
+                
+            } catch (error) {
+                console.error('Error saving package:', error);
+                showNotification('প্যাকেজ সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function editPackage(packageId) {
+            showPackageForm(packageId);
+        }
+
+        async function deletePackage(packageId) {
+            if (!confirm('আপনি কি এই প্যাকেজ ডিলিট করতে চান?')) return;
+            
+            try {
+                await db.collection('packages').doc(packageId).delete();
+                showNotification('প্যাকেজ ডিলিট করা হয়েছে!');
+                loadPackagesAdmin();
+                loadDashboard();
+            } catch (error) {
+                console.error('Error deleting package:', error);
+                showNotification('প্যাকেজ ডিলিট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function closePackageModal() {
+            document.getElementById('package-modal').style.display = 'none';
+            currentPackageId = null;
+        }
+
+        async function loadAllOrders() {
+            try {
+                const container = document.getElementById('all-orders-list');
+                const snapshot = await db.collection('orders')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-shopping-cart" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো অর্ডার নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = { id: doc.id, ...doc.data() };
+                    container.appendChild(createOrderAdminItem(order, 'all'));
+                });
+                
+            } catch (error) {
+                console.error('Error loading all orders:', error);
+                showNotification('অর্ডার লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadPendingOrders() {
+            try {
+                const container = document.getElementById('pending-orders-list');
+                const snapshot = await db.collection('orders')
+                    .where('status', '==', 'pending')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো পেন্ডিং অর্ডার নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = { id: doc.id, ...doc.data() };
+                    container.appendChild(createOrderAdminItem(order, 'pending'));
+                });
+                
+            } catch (error) {
+                console.error('Error loading pending orders:', error);
+                showNotification('অর্ডার লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadCompletedOrders() {
+            try {
+                const container = document.getElementById('completed-orders-list');
+                const snapshot = await db.collection('orders')
+                    .where('status', '==', 'complete')
+                    .orderBy('updatedAt', 'desc')
+                    .limit(50)
+                    .get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-history" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো সম্পূর্ণ অর্ডার নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = { id: doc.id, ...doc.data() };
+                    container.appendChild(createOrderAdminItem(order, 'completed'));
+                });
+                
+            } catch (error) {
+                console.error('Error loading completed orders:', error);
+            }
+        }
+
+        async function loadRejectedOrders() {
+            try {
+                const container = document.getElementById('rejected-orders-list');
+                const snapshot = await db.collection('orders')
+                    .where('status', '==', 'rejected')
+                    .orderBy('updatedAt', 'desc')
+                    .limit(50)
+                    .get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-ban" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো রিজেক্টেড অর্ডার নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = { id: doc.id, ...doc.data() };
+                    container.appendChild(createOrderAdminItem(order, 'rejected'));
+                });
+                
+            } catch (error) {
+                console.error('Error loading rejected orders:', error);
+            }
+        }
+
+        function createOrderAdminItem(order, type) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            if (type === 'pending' || type === 'all') {
+                div.style.cursor = 'pointer';
+                div.onclick = () => showOrderDetails(order.id);
+            }
+            
+            const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
+            const formattedTime = date.toLocaleTimeString('bn-BD', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const discountBadge = order.discountPercentage > 0 ? 
+                `<span class="discount-badge">-${order.discountPercentage}%</span>` : '';
+            
+            if (type === 'pending' || type === 'all') {
+                let actionButtons = '';
+                if (order.status === 'pending') {
+                    actionButtons = `
+                        <div class="action-buttons">
+                            <button class="complete-btn" onclick="event.stopPropagation(); completeOrderById('${order.id}')">
+                                <i class="fas fa-check"></i> কমপ্লিট
+                            </button>
+                            <button class="reject-btn" onclick="event.stopPropagation(); rejectOrderById('${order.id}')">
+                                <i class="fas fa-times"></i> রিজেক্ট
+                            </button>
+                            <button class="view-btn" onclick="event.stopPropagation(); showOrderDetails('${order.id}')">
+                                <i class="fas fa-eye"></i> দেখুন
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    actionButtons = `
+                        <div class="action-buttons">
+                            <button class="view-btn" onclick="event.stopPropagation(); showOrderDetails('${order.id}')">
+                                <i class="fas fa-eye"></i> দেখুন
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                div.innerHTML = `
+                    <div style="font-size: 12px;">${order.id.substring(0, 8)}...</div>
+                    <div>${order.packageName || 'N/A'}</div>
+                    <div>${order.amount?.toFixed(2) || '0.00'} ৳ ${discountBadge}</div>
+                    <div><span class="transaction-id">${order.transactionId?.substring(0, 8) || 'N/A'}</span></div>
+                    ${actionButtons}
+                `;
+            } else if (type === 'completed') {
+                div.innerHTML = `
+                    <div style="font-size: 12px;">${order.id.substring(0, 8)}...</div>
+                    <div>${order.packageName || 'N/A'}</div>
+                    <div>${order.amount?.toFixed(2) || '0.00'} ৳ ${discountBadge}</div>
+                    <div><span class="transaction-id">${order.transactionId?.substring(0, 8) || 'N/A'}</span></div>
+                    <div>${formattedTime}</div>
+                `;
+            } else if (type === 'rejected') {
+                div.innerHTML = `
+                    <div style="font-size: 12px;">${order.id.substring(0, 8)}...</div>
+                    <div>${order.packageName || 'N/A'}</div>
+                    <div>${order.amount?.toFixed(2) || '0.00'} ৳ ${discountBadge}</div>
+                    <div><span class="transaction-id">${order.transactionId?.substring(0, 8) || 'N/A'}</span></div>
+                    <div>${formattedTime}</div>
+                `;
+            }
+            
+            return div;
+        }
+
+        async function showOrderDetails(orderId) {
+            currentOrderId = orderId;
+            
+            try {
+                const doc = await db.collection('orders').doc(orderId).get();
+                if (!doc.exists) {
+                    showNotification('অর্ডার পাওয়া যায়নি', 'error');
+                    return;
+                }
+                
+                const order = doc.data();
+                const container = document.getElementById('order-details-content');
+                
+                const createdAt = order.createdAt?.toDate ? order.createdAt.toDate() : new Date();
+                
+                const formattedDate = createdAt.toLocaleDateString('bn-BD', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const discountInfo = order.discountPercentage > 0 ? 
+                    `<div class="detail-row">
+                        <div class="detail-label">ডিস্কাউন্ট:</div>
+                        <div class="detail-value" style="color: #10b981;">
+                            ${order.discountPercentage}% (${(order.originalAmount - order.amount).toFixed(2)} ৳ কমেছে)
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">মূল মূল্য:</div>
+                        <div class="detail-value">${order.originalAmount?.toFixed(2) || order.amount?.toFixed(2) || '0.00'} ৳</div>
+                    </div>` : '';
+                
+                container.innerHTML = `
+                    <div class="detail-row">
+                        <div class="detail-label">অর্ডার আইডি:</div>
+                        <div class="detail-value">${orderId}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">তারিখ ও সময়:</div>
+                        <div class="detail-value">${formattedDate}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">প্যাকেজ:</div>
+                        <div class="detail-value">${order.packageName || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">প্লেয়ার আইডি:</div>
+                        <div class="detail-value">${order.playerId || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">প্রোমো কোড:</div>
+                        <div class="detail-value">${order.promoCode || 'N/A'}</div>
+                    </div>
+                    ${discountInfo}
+                    <div class="detail-row">
+                        <div class="detail-label">পেমেন্ট মেথড:</div>
+                        <div class="detail-value">${order.paymentMethod || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">ট্রানজেকশন আইডি:</div>
+                        <div class="detail-value" style="color: #3b82f6; font-family: monospace;">${order.transactionId || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">টাকার পরিমাণ:</div>
+                        <div class="detail-value" style="font-size: 18px; color: #f59e0b;">${order.amount?.toFixed(2) || '0.00'} ৳</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">স্ট্যাটাস:</div>
+                        <div class="detail-value" style="color: ${
+                            order.status === 'complete' ? '#10b981' : 
+                            order.status === 'rejected' ? '#ef4444' : '#f59e0b'
+                        }">
+                            ${
+                                order.status === 'complete' ? 'সম্পূর্ণ ✓' : 
+                                order.status === 'rejected' ? 'রিজেক্টেড ✗' : 'পেন্ডিং...'
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('order-details-modal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                showNotification('অর্ডার ডিটেইলস লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function completeOrder() {
+            if (!currentOrderId) return;
+            
+            try {
+                await db.collection('orders').doc(currentOrderId).update({
+                    status: 'complete',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('অর্ডার সম্পূর্ণ করা হয়েছে!');
+                closeOrderModal();
+                loadAllOrders();
+                loadPendingOrders();
+                loadCompletedOrders();
+                loadDashboard();
+                loadRecentOrders();
+                
+            } catch (error) {
+                console.error('Error completing order:', error);
+                showNotification('অর্ডার কমপ্লিট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function completeOrderById(orderId) {
+            currentOrderId = orderId;
+            await completeOrder();
+        }
+
+        async function rejectOrder() {
+            if (!currentOrderId || !confirm('আপনি কি এই অর্ডার রিজেক্ট করতে চান?')) return;
+            
+            try {
+                await db.collection('orders').doc(currentOrderId).update({
+                    status: 'rejected',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('অর্ডার রিজেক্ট করা হয়েছে!');
+                closeOrderModal();
+                loadAllOrders();
+                loadPendingOrders();
+                loadRejectedOrders();
+                loadDashboard();
+                loadRecentOrders();
+                
+            } catch (error) {
+                console.error('Error rejecting order:', error);
+                showNotification('অর্ডার রিজেক্ট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function rejectOrderById(orderId) {
+            currentOrderId = orderId;
+            await rejectOrder();
+        }
+
+        async function deleteOrder() {
+            if (!currentOrderId || !confirm('আপনি কি এই অর্ডার ডিলিট করতে চান?')) return;
+            
+            try {
+                await db.collection('orders').doc(currentOrderId).delete();
+                showNotification('অর্ডার ডিলিট করা হয়েছে!');
+                closeOrderModal();
+                loadAllOrders();
+                loadPendingOrders();
+                loadDashboard();
+                loadRecentOrders();
+                
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                showNotification('অর্ডার ডিলিট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-details-modal').style.display = 'none';
+            currentOrderId = null;
+        }
+
+        // অন্যান্য ফাংশনগুলো আগের মতোই থাকবে (promo, settings, social, payment management)
+        // শুধু রিলেটেড ফাংশনগুলো এখানে দেখানো হলো
+
+        async function loadPromoCodes() {
+            try {
+                const container = document.getElementById('promo-codes-list');
+                const snapshot = await db.collection('promoCodes').orderBy('createdAt', 'desc').get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-tags" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো প্রোমো কোড নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const promo = { id: doc.id, ...doc.data() };
+                    container.appendChild(createPromoCodeItem(promo));
+                });
+                
+            } catch (error) {
+                console.error('Error loading promo codes:', error);
+                showNotification('প্রোমো কোড লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function createPromoCodeItem(promo) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            const usagePercentage = promo.limit > 0 ? Math.round((promo.used || 0) / promo.limit * 100) : 0;
+            
+            div.innerHTML = `
+                <div><strong>${promo.code}</strong></div>
+                <div>${promo.discount}% ডিস্কাউন্ট</div>
+                <div>
+                    ${promo.used || 0} / ${promo.limit}
+                    <small style="color: ${usagePercentage >= 100 ? '#ef4444' : '#10b981'}">
+                        (${usagePercentage}%)
+                    </small>
+                </div>
+                <div>${promo.limit}</div>
+                <div class="action-buttons">
+                    <button class="delete-btn" onclick="deletePromoCode('${promo.id}')">
+                        <i class="fas fa-trash"></i> ডিলিট
+                    </button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function showPromoForm() {
+            document.getElementById('promo-form').style.display = 'block';
+            resetPromoForm();
+        }
+
+        function resetPromoForm() {
+            document.getElementById('promo-code-input').value = '';
+            document.getElementById('promo-discount').value = '';
+            document.getElementById('promo-limit').value = '';
+            document.getElementById('promo-used').value = '0';
+        }
+
+        async function savePromoCode() {
+            const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
+            const discount = parseInt(document.getElementById('promo-discount').value);
+            const limit = parseInt(document.getElementById('promo-limit').value);
+            
+            if (!code || !discount || !limit) {
+                showNotification('সব ফিল্ড পূরণ করুন', 'error');
+                return;
+            }
+            
+            if (discount < 1 || discount > 100) {
+                showNotification('ডিস্কাউন্ট ১-১০০% এর মধ্যে হতে হবে', 'error');
+                return;
+            }
+            
+            try {
+                const promoData = {
+                    code: code,
+                    discount: discount,
+                    limit: limit,
+                    used: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const snapshot = await db.collection('promoCodes').where('code', '==', code).get();
+                if (!snapshot.empty) {
+                    showNotification('এই কোডটি আগেই আছে!', 'error');
+                    return;
+                }
+                
+                await db.collection('promoCodes').add(promoData);
+                showNotification('প্রোমো কোড যোগ করা হয়েছে!');
+                resetPromoForm();
+                loadPromoCodes();
+                
+            } catch (error) {
+                console.error('Error saving promo code:', error);
+                showNotification('প্রোমো কোড সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function deletePromoCode(promoId) {
+            if (!confirm('আপনি কি এই প্রোমো কোড ডিলিট করতে চান?')) return;
+            
+            try {
+                await db.collection('promoCodes').doc(promoId).delete();
+                showNotification('প্রোমো কোড ডিলিট করা হয়েছে!');
+                loadPromoCodes();
+            } catch (error) {
+                console.error('Error deleting promo code:', error);
+                showNotification('প্রোমো কোড ডিলিট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadGeneralSettings() {
+            try {
+                const doc = await db.collection('settings').doc('general').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.siteTitle) {
+                        document.getElementById('site-title').value = data.siteTitle;
+                    }
+                    if (data.defaultCurrency) {
+                        document.getElementById('default-currency').value = data.defaultCurrency;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading general settings:', error);
+            }
+        }
+
+        async function saveGeneralSettings() {
+            const siteTitle = document.getElementById('site-title').value.trim();
+            const defaultCurrency = document.getElementById('default-currency').value;
+            
+            try {
+                const settingsData = {
+                    siteTitle: siteTitle || 'Gorib Gamers',
+                    defaultCurrency: defaultCurrency,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('settings').doc('general').set(settingsData, { merge: true });
+                showNotification('সেটিংস সেভ করা হয়েছে!');
+                
+            } catch (error) {
+                console.error('Error saving general settings:', error);
+                showNotification('সেটিংস সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadSiteSettingsAdmin() {
+            try {
+                const doc = await db.collection('siteSettings').doc('general').get();
+                if (doc.exists) {
+                    siteSettings = doc.data();
+                    
+                    if (siteSettings.siteName) {
+                        document.getElementById('site-name').value = siteSettings.siteName;
+                    }
+                    if (siteSettings.siteTagline) {
+                        document.getElementById('site-tagline').value = siteSettings.siteTagline;
+                    }
+                    if (siteSettings.siteLogo) {
+                        document.getElementById('site-logo').value = siteSettings.siteLogo;
+                    }
+                    if (siteSettings.siteFavicon) {
+                        document.getElementById('site-favicon').value = siteSettings.siteFavicon;
+                    }
+                    
+                    updatePreview();
+                }
+            } catch (error) {
+                console.error('Error loading site settings:', error);
+            }
+        }
+
+        function updatePreview() {
+            const siteName = document.getElementById('site-name').value || 'Gorib Gamers';
+            const siteTagline = document.getElementById('site-tagline').value || 'প্রিমিয়াম মাইনক্রাফট সার্ভার এক্সেস';
+            const siteLogo = document.getElementById('site-logo').value;
+            
+            document.getElementById('preview-name').textContent = siteName;
+            document.getElementById('preview-tagline').textContent = siteTagline;
+            
+            const previewLogo = document.getElementById('preview-logo');
+            if (siteLogo && siteLogo.trim() !== '' && siteLogo.startsWith('http')) {
+                previewLogo.src = siteLogo;
+                previewLogo.style.display = 'block';
+                previewLogo.onerror = function() {
+                    this.style.display = 'none';
+                    showNotification('লোগো লোড করতে সমস্যা হয়েছে', 'error');
+                };
+            } else {
+                previewLogo.style.display = 'none';
+            }
+        }
+
+        async function saveSiteSettings() {
+            const siteName = document.getElementById('site-name').value.trim();
+            const siteTagline = document.getElementById('site-tagline').value.trim();
+            const siteLogo = document.getElementById('site-logo').value.trim();
+            const siteFavicon = document.getElementById('site-favicon').value.trim();
+            
+            try {
+                const siteData = {
+                    siteName: siteName || 'Gorib Gamers',
+                    siteTagline: siteTagline || 'প্রিমিয়াম মাইনক্রাফট সার্ভার এক্সেস',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (siteLogo) {
+                    siteData.siteLogo = siteLogo;
+                }
+                if (siteFavicon) {
+                    siteData.siteFavicon = siteFavicon;
+                }
+                
+                await db.collection('siteSettings').doc('general').set(siteData, { merge: true });
+                showNotification('সাইট সেটিংস সেভ করা হয়েছে!');
+                
+                siteSettings = siteData;
+                updatePreview();
+                
+            } catch (error) {
+                console.error('Error saving site settings:', error);
+                showNotification('সাইট সেটিংস সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadSocialLinksAdmin() {
+            try {
+                const container = document.getElementById('social-links-list');
+                const snapshot = await db.collection('socialLinks').orderBy('createdAt', 'asc').get();
+                
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-share-alt" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো সোশ্যাল লিংক নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const link = { id: doc.id, ...doc.data() };
+                    container.appendChild(createSocialLinkAdminItem(link));
+                });
+                
+            } catch (error) {
+                console.error('Error loading social links:', error);
+                showNotification('সোশ্যাল লিংক লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function createSocialLinkAdminItem(link) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            div.innerHTML = `
+                <div><strong>${link.platform || 'N/A'}</strong></div>
+                <div style="font-size: 12px; word-break: break-all;">${link.url?.substring(0, 20)}...</div>
+                <div>${link.desc || 'N/A'}</div>
+                <div><span style="color: #10b981;">সক্রিয়</span></div>
+                <div class="action-buttons">
+                    <button class="delete-btn" onclick="deleteSocialLink('${link.id}')">
+                        <i class="fas fa-trash"></i> ডিলিট
+                    </button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function showSocialForm() {
+            document.getElementById('social-form').style.display = 'block';
+            resetSocialForm();
+        }
+
+        function resetSocialForm() {
+            document.getElementById('social-platform').value = 'whatsapp';
+            updateSocialIcon();
+            document.getElementById('social-url').value = '';
+            document.getElementById('social-color').value = '#25D366';
+            document.getElementById('social-desc').value = '';
+        }
+
+        function updateSocialIcon() {
+            const platform = document.getElementById('social-platform').value;
+            let icon = 'fab fa-';
+            let color = '#25D366';
+            
+            switch(platform) {
+                case 'whatsapp':
+                    icon += 'whatsapp';
+                    color = '#25D366';
+                    break;
+                case 'discord':
+                    icon += 'discord';
+                    color = '#5865F2';
+                    break;
+                case 'telegram':
+                    icon += 'telegram';
+                    color = '#0088cc';
+                    break;
+                case 'youtube':
+                    icon += 'youtube';
+                    color = '#FF0000';
+                    break;
+                case 'facebook':
+                    icon += 'facebook';
+                    color = '#1877F2';
+                    break;
+                case 'instagram':
+                    icon += 'instagram';
+                    color = '#E4405F';
+                    break;
+                default:
+                    icon = 'fas fa-link';
+                    color = '#3b82f6';
+            }
+            
+            document.getElementById('social-icon').value = icon;
+            document.getElementById('social-color').value = color;
+        }
+
+        async function saveSocialLink() {
+            const platform = document.getElementById('social-platform').value;
+            const icon = document.getElementById('social-icon').value.trim();
+            const url = document.getElementById('social-url').value.trim();
+            const color = document.getElementById('social-color').value;
+            const desc = document.getElementById('social-desc').value.trim();
+            
+            if (!platform || !icon || !url || !color) {
+                showNotification('সব প্রয়োজনীয় ফিল্ড পূরণ করুন', 'error');
+                return;
+            }
+            
+            try {
+                const socialData = {
+                    platform: platform.charAt(0).toUpperCase() + platform.slice(1),
+                    icon: icon,
+                    url: url,
+                    color: color,
+                    desc: desc || platform,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('socialLinks').add(socialData);
+                showNotification('সোশ্যাল লিংক যোগ করা হয়েছে!');
+                resetSocialForm();
+                document.getElementById('social-form').style.display = 'none';
+                loadSocialLinksAdmin();
+                
+            } catch (error) {
+                console.error('Error saving social link:', error);
+                showNotification('সোশ্যাল লিংক সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function deleteSocialLink(linkId) {
+            if (!confirm('আপনি কি এই সোশ্যাল লিংক ডিলিট করতে চান?')) return;
+            
+            try {
+                await db.collection('socialLinks').doc(linkId).delete();
+                showNotification('সোশ্যাল লিংক ডিলিট করা হয়েছে!');
+                loadSocialLinksAdmin();
+            } catch (error) {
+                console.error('Error deleting social link:', error);
+                showNotification('সোশ্যাল লিংক ডিলিট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadDefaultPaymentSettings() {
+            try {
+                const snapshot = await db.collection('paymentSettings').get();
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    
+                    if (id === 'bkash') {
+                        document.getElementById('bkash-number').value = data.number || '';
+                        document.getElementById('bkash-active').checked = data.active !== false;
+                    } else if (id === 'nagad') {
+                        document.getElementById('nagad-number').value = data.number || '';
+                        document.getElementById('nagad-active').checked = data.active !== false;
+                    } else if (id === 'rocket') {
+                        document.getElementById('rocket-number').value = data.number || '';
+                        document.getElementById('rocket-active').checked = data.active !== false;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading payment settings:', error);
+            }
+        }
+
+        async function saveDefaultPaymentSettings() {
+            const bkashNumber = document.getElementById('bkash-number').value.trim();
+            const bkashActive = document.getElementById('bkash-active').checked;
+            
+            const nagadNumber = document.getElementById('nagad-number').value.trim();
+            const nagadActive = document.getElementById('nagad-active').checked;
+            
+            const rocketNumber = document.getElementById('rocket-number').value.trim();
+            const rocketActive = document.getElementById('rocket-active').checked;
+            
+            try {
+                await db.collection('paymentSettings').doc('bkash').set({
+                    name: 'bKash',
+                    icon: 'fas fa-mobile-alt',
+                    number: bkashNumber,
+                    active: bkashActive,
+                    color: '#e2136e',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                await db.collection('paymentSettings').doc('nagad').set({
+                    name: 'Nagad',
+                    icon: 'fas fa-wallet',
+                    number: nagadNumber,
+                    active: nagadActive,
+                    color: '#f8a61c',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                await db.collection('paymentSettings').doc('rocket').set({
+                    name: 'Rocket',
+                    icon: 'fas fa-rocket',
+                    number: rocketNumber,
+                    active: rocketActive,
+                    color: '#5d30bf',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                showNotification('ডিফল্ট পেমেন্ট মেথড সেভ করা হয়েছে!');
+                
+            } catch (error) {
+                console.error('Error saving payment settings:', error);
+                showNotification('সেটিংস সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function loadPaymentMethodsAdmin() {
+            try {
+                const container = document.getElementById('payment-methods-list');
+                const snapshot = await db.collection('paymentSettings').get();
+                
+                container.innerHTML = '';
+                
+                const customMethods = [];
+                snapshot.forEach(doc => {
+                    const method = { id: doc.id, ...doc.data() };
+                    if (!['bkash', 'nagad', 'rocket'].includes(doc.id)) {
+                        customMethods.push(method);
+                    }
+                });
+                
+                if (customMethods.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-credit-card" style="font-size: 40px; margin-bottom: 15px;"></i>
+                            <p>কোনো কাস্টম পেমেন্ট মেথড নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                customMethods.forEach(method => {
+                    container.appendChild(createPaymentMethodItem(method));
+                });
+                
+            } catch (error) {
+                console.error('Error loading payment methods:', error);
+                showNotification('পেমেন্ট মেথড লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function createPaymentMethodItem(method) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            
+            div.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="color: ${method.color || '#3b82f6'}; font-size: 20px;">
+                        <i class="${method.icon || 'fas fa-wallet'}"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">${method.name || method.id}</div>
+                    </div>
+                </div>
+                <div style="font-family: monospace;">${method.number || 'N/A'}</div>
+                <div>
+                    <span style="display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; background: ${method.active !== false ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; color: ${method.active !== false ? '#10b981' : '#ef4444'}">
+                        ${method.active !== false ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+                    </span>
+                </div>
+                <div>ট্রানজেকশন</div>
+                <div class="action-buttons">
+                    <button class="toggle-btn" onclick="togglePaymentMethod('${method.id}', ${method.active !== false})">
+                        <i class="fas fa-power-off"></i> ${method.active !== false ? 'অফ' : 'অন'}
+                    </button>
+                    <button class="delete-btn" onclick="deletePaymentMethod('${method.id}')">
+                        <i class="fas fa-trash"></i> ডিলিট
+                    </button>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function showPaymentMethodForm(methodId = null) {
+            currentPaymentMethodId = methodId;
+            const form = document.getElementById('payment-method-form');
+            
+            if (methodId) {
+                loadPaymentMethodData(methodId);
+            } else {
+                resetPaymentMethodForm();
+            }
+            
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function loadPaymentMethodData(methodId) {
+            try {
+                const doc = await db.collection('paymentSettings').doc(methodId).get();
+                if (!doc.exists) {
+                    showNotification('পেমেন্ট মেথড পাওয়া যায়নি', 'error');
+                    return;
+                }
+                
+                const method = doc.data();
+                
+                document.getElementById('payment-method-name').value = method.name || '';
+                document.getElementById('payment-method-icon').value = method.icon || '';
+                document.getElementById('payment-method-number').value = method.number || '';
+                document.getElementById('payment-method-color').value = method.color || '#3b82f6';
+                document.getElementById('payment-method-status').value = method.active !== false ? 'active' : 'inactive';
+                document.getElementById('payment-method-id').value = methodId;
+                
+            } catch (error) {
+                console.error('Error loading payment method:', error);
+                showNotification('পেমেন্ট মেথড লোড করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function resetPaymentMethodForm() {
+            document.getElementById('payment-method-name').value = '';
+            document.getElementById('payment-method-icon').value = 'fas fa-wallet';
+            document.getElementById('payment-method-number').value = '';
+            document.getElementById('payment-method-color').value = '#3b82f6';
+            document.getElementById('payment-method-status').value = 'active';
+            
+            document.getElementById('payment-method-name').addEventListener('input', function() {
+                const id = this.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                document.getElementById('payment-method-id').value = id;
+            });
+        }
+
+        async function savePaymentMethod() {
+            const name = document.getElementById('payment-method-name').value.trim();
+            const icon = document.getElementById('payment-method-icon').value.trim();
+            const number = document.getElementById('payment-method-number').value.trim();
+            const color = document.getElementById('payment-method-color').value;
+            const status = document.getElementById('payment-method-status').value;
+            const idInput = document.getElementById('payment-method-id').value.trim();
+            
+            if (!name || !number) {
+                showNotification('নাম এবং নম্বর পূরণ করুন', 'error');
+                return;
+            }
+            
+            let id = idInput;
+            if (!id) {
+                id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            }
+            
+            try {
+                const methodData = {
+                    name: name,
+                    icon: icon || 'fas fa-wallet',
+                    number: number,
+                    color: color,
+                    active: status === 'active',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (!currentPaymentMethodId) {
+                    methodData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                }
+                
+                await db.collection('paymentSettings').doc(id).set(methodData, { merge: true });
+                
+                showNotification(currentPaymentMethodId ? 'পেমেন্ট মেথড আপডেট করা হয়েছে!' : 'পেমেন্ট মেথড যোগ করা হয়েছে!');
+                
+                document.getElementById('payment-method-form').style.display = 'none';
+                resetPaymentMethodForm();
+                currentPaymentMethodId = null;
+                
+                loadPaymentMethodsAdmin();
+                loadDefaultPaymentSettings();
+                
+            } catch (error) {
+                console.error('Error saving payment method:', error);
+                showNotification('পেমেন্ট মেথড সেভ করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function togglePaymentMethod(methodId, currentStatus) {
+            try {
+                await db.collection('paymentSettings').doc(methodId).update({
+                    active: !currentStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification(`পেমেন্ট মেথড ${!currentStatus ? 'সক্রিয়' : 'নিষ্ক্রিয়'} করা হয়েছে!`);
+                loadPaymentMethodsAdmin();
+                
+            } catch (error) {
+                console.error('Error toggling payment method:', error);
+                showNotification('স্ট্যাটাস পরিবর্তন করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        async function deletePaymentMethod(methodId) {
+            if (!confirm('আপনি কি এই পেমেন্ট মেথড ডিলিট করতে চান?')) return;
+            
+            try {
+                await db.collection('paymentSettings').doc(methodId).delete();
+                showNotification('পেমেন্ট মেথড ডিলিট করা হয়েছে!');
+                loadPaymentMethodsAdmin();
+            } catch (error) {
+                console.error('Error deleting payment method:', error);
+                showNotification('পেমেন্ট মেথড ডিলিট করতে সমস্যা হয়েছে', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const messageEl = document.getElementById('notification-message');
+            
+            messageEl.textContent = message;
+            notification.style.background = type === 'error' ? '#ef4444' : '#10b981';
+            notification.className = type === 'error' ? 'notification error' : 'notification';
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        window.onclick = function(event) {
+            const packageModal = document.getElementById('package-modal');
+            const orderModal = document.getElementById('order-details-modal');
+            
+            if (event.target === packageModal) {
+                closePackageModal();
+            }
+            if (event.target === orderModal) {
+                closeOrderModal();
+            }
+        };
+    </script>
+</body>
+</html>
